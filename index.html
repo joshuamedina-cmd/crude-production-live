@@ -524,6 +524,7 @@ body {
 .flow-row.bottom-row .station:nth-child(1) { animation-delay: 0.3s; }
 .flow-row.bottom-row .station:nth-child(2) { animation-delay: 0.35s; }
 .flow-row.bottom-row .station:nth-child(3) { animation-delay: 0.4s; }
+.flow-row.bottom-row .station:nth-child(4) { animation-delay: 0.45s; }
 
 /* ============================================
    Responsive
@@ -629,9 +630,10 @@ const EMBEDDED_DATA = {
   "Basify and Flocc": [
     { "id": "11450148850", "name": "Batch", "Batch Name": "3333" }
   ],
-  "Filter-Press Tank C": [
+  "Tank C": [
     { "id": "11450152620", "name": "batch", "Date": "2026-03-06", "Batch Name": "333", "Operator Name": "Quinton L", "Time": "6:15 PM" }
   ],
+  "Filter Press": [],
   "Crude wet": []
 };
 
@@ -673,16 +675,23 @@ const STATIONS = [
     icon: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8v12l-4 8v12h24V28l-4-8V8"/><path d="M16 8h16"/><path d="M14 32h20" opacity="0.4" stroke-dasharray="2 2"/><circle cx="20" cy="36" r="2" opacity="0.5"/><circle cx="28" cy="34" r="1.5" opacity="0.4"/><circle cx="24" cy="38" r="1" opacity="0.3"/></svg>'
   },
   {
-    groupTitle: 'Filter-Press Tank C',
-    shortName: 'Filter-Press',
+    groupTitle: 'Tank C',
+    shortName: 'Tank C',
     stationNum: 6,
     gradient: 'linear-gradient(135deg, #1a2233, #2a3a55)',
+    icon: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="12" y="8" width="24" height="32" rx="4"/><path d="M12 16h24"/><path d="M12 32h24"/><circle cx="24" cy="24" r="4" opacity="0.4"/><path d="M8 40h32" stroke-width="3" stroke-linecap="round"/></svg>'
+  },
+  {
+    groupTitle: 'Filter Press',
+    shortName: 'Filter Press',
+    stationNum: 7,
+    gradient: 'linear-gradient(135deg, #2d1f11, #4a3920)',
     icon: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="12" width="36" height="24" rx="2"/><line x1="12" y1="12" x2="12" y2="36"/><line x1="18" y1="12" x2="18" y2="36"/><line x1="24" y1="12" x2="24" y2="36"/><line x1="30" y1="12" x2="30" y2="36"/><line x1="36" y1="12" x2="36" y2="36"/><path d="M6 18h36" opacity="0.3"/></svg>'
   },
   {
     groupTitle: 'Crude wet',
     shortName: 'Crude Wet',
-    stationNum: 7,
+    stationNum: 8,
     gradient: 'linear-gradient(135deg, #1f2d1a, #364d2a)',
     icon: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8l-4 20a10 10 0 0 0 10 12h4a10 10 0 0 0 10-12L32 8"/><path d="M16 8h16"/><path d="M14 30h20" opacity="0.3" stroke-dasharray="3 2"/><circle cx="24" cy="34" r="3" opacity="0.4"/></svg>'
   }
@@ -767,7 +776,7 @@ function renderFlow(stationData) {
   var container = document.getElementById('flowContainer');
 
   var topStations = STATIONS.slice(0, 4);
-  var bottomStations = STATIONS.slice(4, 7);
+  var bottomStations = STATIONS.slice(4, 8);
 
   // === TOP ROW ===
   var html = '<div class="flow-row top-row">';
@@ -781,14 +790,13 @@ function renderFlow(stationData) {
   // === VERTICAL CONNECTOR ===
   html += '<div class="vertical-connector"><div class="vert-line-wrap"><div class="vert-line"></div></div></div>';
 
-  // === BOTTOM ROW (left to right: 5, 6, 7) ===
+  // === BOTTOM ROW (left to right: 5, 6, 7, 8) ===
   html += '<div class="flow-row bottom-row">';
   bottomStations.forEach(function(station, i) {
     var batches = stationData[station.groupTitle] || [];
     var showArrow = i < bottomStations.length - 1;
     html += renderStation(station, batches, showArrow, 'right');
   });
-  html += '<div class="empty-cell"></div>';
   html += '</div>';
 
   // === SUMMARY BAR ===
@@ -812,6 +820,60 @@ function renderFlow(stationData) {
   '</div>';
 
   container.innerHTML = html;
+}
+
+// ============================================
+// Monday.com Live API
+// ============================================
+
+var MONDAY_API = 'https://api.monday.com/v2';
+var MONDAY_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjYyNzA3NzcxOSwiYWFpIjoxMSwidWlkIjo3NTA2NTY3OCwiaWFkIjoiMjAyNi0wMi0yOFQwMToxNzowOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MjkxNDg2NzMsInJnbiI6InVzZTEifQ.ocD9w0Q-17JqNfU4iZXL4i3frn_Bw4pyVe_fkhJuiPg';
+var BOARD_ID = '18402821844';
+
+function fetchLiveData() {
+  var query = '{ boards(ids: [' + BOARD_ID + ']) { groups { id title } items_page(limit: 200) { items { id name group { id title } column_values { id text } } } } }';
+
+  return fetch(MONDAY_API, {
+    method: 'POST',
+    headers: {
+      'Authorization': MONDAY_TOKEN,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ query: query })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(result) {
+    var items = result.data.boards[0].items_page.items;
+    var stationData = {};
+
+    // Initialize all groups
+    STATIONS.forEach(function(s) { stationData[s.groupTitle] = []; });
+
+    items.forEach(function(item) {
+      var groupTitle = item.group.title;
+      var cols = {};
+      item.column_values.forEach(function(cv) { cols[cv.id] = cv.text; });
+
+      var batchObj = {
+        id: item.id,
+        name: item.name,
+        'Batch Name': cols['text_mm166879'] || item.name,
+        'Date': cols['date4'] || '',
+        'Operator Name': cols['text_mm16pd4m'] || '',
+        'Time': cols['text_mm1635'] || '',
+        'Final pH': cols['numeric_mm16a4w8'] || ''
+      };
+
+      if (stationData[groupTitle] !== undefined) {
+        stationData[groupTitle].push(batchObj);
+      }
+    });
+
+    // Filter Press is a processing station - always empty
+    stationData['Filter Press'] = [];
+
+    return stationData;
+  });
 }
 
 // ============================================
@@ -857,17 +919,46 @@ function updateTimestamp() {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Start with embedded data for instant render
   renderFlow(EMBEDDED_DATA);
   updateTimestamp();
 
+  // Then fetch live data
+  fetchLiveData().then(function(liveData) {
+    renderFlow(liveData);
+    var el = document.getElementById('lastUpdated');
+    var now = new Date();
+    el.textContent = 'Live \u2014 ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }).catch(function(err) {
+    console.error('API fetch error:', err);
+  });
+
+  // Auto-refresh every 60 seconds
+  setInterval(function() {
+    fetchLiveData().then(function(liveData) {
+      renderFlow(liveData);
+      var el = document.getElementById('lastUpdated');
+      var now = new Date();
+      el.textContent = 'Live \u2014 ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }).catch(function(err) {
+      console.error('Refresh error:', err);
+    });
+  }, 60000);
+
+  // Manual refresh button
   document.getElementById('btnRefresh').addEventListener('click', function() {
     var btn = document.getElementById('btnRefresh');
     btn.classList.add('spinning');
-    setTimeout(function() {
-      renderFlow(EMBEDDED_DATA);
-      updateTimestamp();
+    fetchLiveData().then(function(liveData) {
+      renderFlow(liveData);
+      var el = document.getElementById('lastUpdated');
+      var now = new Date();
+      el.textContent = 'Live \u2014 ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       btn.classList.remove('spinning');
-    }, 500);
+    }).catch(function(err) {
+      console.error('Refresh error:', err);
+      btn.classList.remove('spinning');
+    });
   });
 });
 
