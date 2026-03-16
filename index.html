@@ -547,6 +547,184 @@ body {
   .summary-bar { flex-direction: column; gap: var(--space-3); }
 }
 
+/* ============================================
+   Activity Log
+   ============================================ */
+.activity-log {
+  margin-top: var(--space-8);
+  max-width: 1500px;
+}
+
+.activity-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.activity-log-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.activity-log-title svg {
+  color: var(--accent);
+}
+
+.activity-log-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.activity-log-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.activity-log-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.activity-log-content.collapsed {
+  display: none;
+}
+
+.operator-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s var(--ease-out);
+}
+
+.operator-card:hover {
+  border-color: var(--border-emphasis);
+}
+
+.operator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s var(--ease-out);
+}
+
+.operator-header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.operator-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.operator-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.operator-name {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.operator-batch-count {
+  font-size: var(--text-xs);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-faint);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.operator-chevron {
+  color: var(--text-faint);
+  transition: transform 0.2s var(--ease-out);
+}
+
+.operator-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.operator-batches {
+  display: none;
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.operator-batches.expanded {
+  display: block;
+}
+
+.operator-batch-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 7px var(--space-3);
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+  margin-bottom: 5px;
+  transition: all 0.2s var(--ease-out);
+}
+
+.operator-batch-item:last-child {
+  margin-bottom: 0;
+}
+
+.operator-batch-item:hover {
+  background: var(--bg-hover);
+  border-color: rgba(0, 212, 170, 0.15);
+}
+
+.operator-batch-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.operator-batch-meta {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.operator-batch-station {
+  color: var(--accent);
+  font-weight: 500;
+}
+
 </style>
 </head>
 <body>
@@ -576,6 +754,25 @@ body {
     <!-- Stations rendered by JS -->
   </main>
 
+  <!-- ACTIVITY LOG -->
+  <div class="flow-container" style="padding-top:0;">
+    <div class="activity-log">
+      <div class="activity-log-header">
+        <div class="activity-log-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Activity Log
+        </div>
+        <button class="activity-log-toggle" id="btnToggleLog" onclick="toggleActivityLog()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          Show
+        </button>
+      </div>
+      <div class="activity-log-content collapsed" id="activityLogContent">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
   <footer class="app-footer">
     <span>Aldous Biomass Batch Records</span>
     <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
@@ -598,7 +795,7 @@ const STATION_IMAGES = {
    CRUDE PRODUCTION LIVE — App Logic
    ============================================ */
 
-const MAX_BATCHES_PER_STATION = 5;
+const MAX_BATCHES_PER_STATION = 10;
 
 // Embedded data from Monday.com (Board: Biomass Batch Records — Aldous)
 // Board ID: 18402821844 — Last synced: 2026-03-06
@@ -916,17 +1113,127 @@ function updateTimestamp() {
 }
 
 // ============================================
+// Activity Log
+// ============================================
+
+var _activityLogOpen = false;
+
+function toggleActivityLog() {
+  var content = document.getElementById('activityLogContent');
+  var btn = document.getElementById('btnToggleLog');
+  _activityLogOpen = !_activityLogOpen;
+  if (_activityLogOpen) {
+    content.classList.remove('collapsed');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg> Hide';
+  } else {
+    content.classList.add('collapsed');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg> Show';
+  }
+}
+
+function renderActivityLog(stationData) {
+  var container = document.getElementById('activityLogContent');
+  if (!container) return;
+
+  // Gather all batches with operator names, grouped by operator
+  var operatorMap = {};
+  STATIONS.forEach(function(station) {
+    var batches = stationData[station.groupTitle] || [];
+    batches.forEach(function(batch) {
+      var opName = batch['Operator Name'] || '';
+      if (!opName) return;
+      if (!operatorMap[opName]) operatorMap[opName] = [];
+      operatorMap[opName].push({
+        batchName: batch['Batch Name'] || batch.name || 'Unnamed',
+        station: station.shortName,
+        date: batch['Date'] || '',
+        time: batch['Time'] || ''
+      });
+    });
+  });
+
+  // Sort operators alphabetically
+  var operators = Object.keys(operatorMap).sort(function(a, b) {
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+  });
+
+  if (operators.length === 0) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-faint);">No operator activity data available</div>';
+    return;
+  }
+
+  var html = '';
+  operators.forEach(function(opName, idx) {
+    var batches = operatorMap[opName];
+    // Sort by date descending
+    batches.sort(function(a, b) {
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return b.date.localeCompare(a.date);
+    });
+
+    var initials = opName.split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().slice(0, 2);
+
+    var batchItems = batches.map(function(b) {
+      var meta = [];
+      if (b.station) meta.push('<span class="operator-batch-station">' + escapeHtml(b.station) + '</span>');
+      if (b.date) meta.push('<span>' + formatDate(b.date) + '</span>');
+      if (b.time) meta.push('<span>' + escapeHtml(b.time) + '</span>');
+      return '<div class="operator-batch-item">' +
+        '<span class="batch-indicator active"></span>' +
+        '<div class="batch-info">' +
+          '<div class="operator-batch-name">' + escapeHtml(b.batchName) + '</div>' +
+          (meta.length > 0 ? '<div class="operator-batch-meta">' + meta.join('') + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    html += '<div class="operator-card">' +
+      '<div class="operator-header" onclick="toggleOperator(' + idx + ')">' +
+        '<div class="operator-header-left">' +
+          '<div class="operator-avatar">' + initials + '</div>' +
+          '<span class="operator-name">' + escapeHtml(opName) + '</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span class="operator-batch-count">' + batches.length + ' batch' + (batches.length !== 1 ? 'es' : '') + '</span>' +
+          '<svg class="operator-chevron" id="chevron-' + idx + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '</div>' +
+      '</div>' +
+      '<div class="operator-batches" id="op-batches-' + idx + '">' +
+        batchItems +
+      '</div>' +
+    '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleOperator(idx) {
+  var el = document.getElementById('op-batches-' + idx);
+  var chev = document.getElementById('chevron-' + idx);
+  if (el.classList.contains('expanded')) {
+    el.classList.remove('expanded');
+    chev.classList.remove('expanded');
+  } else {
+    el.classList.add('expanded');
+    chev.classList.add('expanded');
+  }
+}
+
+// ============================================
 // Main
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
   // Start with embedded data for instant render
   renderFlow(EMBEDDED_DATA);
+  renderActivityLog(EMBEDDED_DATA);
   updateTimestamp();
 
   // Then fetch live data
   fetchLiveData().then(function(liveData) {
     renderFlow(liveData);
+    renderActivityLog(liveData);
     var el = document.getElementById('lastUpdated');
     var now = new Date();
     el.textContent = 'Live \u2014 ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -938,6 +1245,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setInterval(function() {
     fetchLiveData().then(function(liveData) {
       renderFlow(liveData);
+      renderActivityLog(liveData);
       var el = document.getElementById('lastUpdated');
       var now = new Date();
       el.textContent = 'Live \u2014 ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -952,6 +1260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.classList.add('spinning');
     fetchLiveData().then(function(liveData) {
       renderFlow(liveData);
+      renderActivityLog(liveData);
       var el = document.getElementById('lastUpdated');
       var now = new Date();
       el.textContent = 'Live \u2014 ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
